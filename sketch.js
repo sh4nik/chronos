@@ -88,18 +88,21 @@ const drawMoon = (posX, posY, size, color, moonPhase, moonShadow) => {
   angleMode(DEGREES);
 };
 
+const PLAYBACK_TYPES = { STATIC: 'STATIC', LIVE: 'LIVE', CONF: 'CONF' };
+
 function setup() {
   config = {
-    playback: {
+    playbackType: PLAYBACK_TYPES.CONF,
+    playbackConf: {
       direction: "add",
       unit: "d",
       step: 1,
     },
     scale: 2,
     backgroundColor: color("#202633"),
-    darkHighlight: color('#1e222d'),
-    foregroundColor: color('#2f3c3d'),
-    foregroundHighlight: color('#3c5658'),
+    darkHighlight: color("#1e222d"),
+    foregroundColor: color("#2f3c3d"),
+    foregroundHighlight: color("#3c5658"),
     moonShadow: color("#5e4841"),
     planets: {
       Su: { char: "☉", size: 0.8, color: color("#ffc107") },
@@ -131,7 +134,8 @@ function setup() {
 
 function draw() {
   const {
-    playback: { direction, unit, step },
+    playbackType,
+    playbackConf: { direction, unit, step },
     scale,
     backgroundColor,
     zodiac: zodiacConfig,
@@ -141,7 +145,16 @@ function draw() {
     foregroundColor,
     foregroundHighlight,
   } = config;
-  datetime = datetime[direction](step, unit);
+
+  switch(playbackType) {
+    case PLAYBACK_TYPES.LIVE:
+      datetime = moment();
+      break;
+    case PLAYBACK_TYPES.CONF:
+      datetime = datetime[direction](step, unit);
+      break;
+  }
+
   const date = datetime.format("YYYY/MM/DD");
   const time = datetime.format("HH:mm");
   const { positions, moonPhase } = get_positions(
@@ -157,9 +170,6 @@ function draw() {
   textSize(12 * scale);
 
   translate(width / 2, height / 2);
-
-  noStroke();
-  fill(30);
 
   fill(foregroundHighlight);
   stroke(foregroundHighlight);
