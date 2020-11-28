@@ -96,7 +96,10 @@ function setup() {
       step: 1,
     },
     scale: 2,
-    backgroundColor: color("#222"),
+    backgroundColor: color("#202633"),
+    darkHighlight: color('#1e222d'),
+    foregroundColor: color('#2f3c3d'),
+    foregroundHighlight: color('#3c5658'),
     moonShadow: color("#5e4841"),
     planets: {
       Su: { char: "☉", size: 0.8, color: color("#ffc107") },
@@ -134,6 +137,9 @@ function draw() {
     zodiac: zodiacConfig,
     planets: planetsConfig,
     moonShadow,
+    darkHighlight,
+    foregroundColor,
+    foregroundHighlight,
   } = config;
   datetime = datetime[direction](step, unit);
   const date = datetime.format("YYYY/MM/DD");
@@ -155,22 +161,22 @@ function draw() {
   noStroke();
   fill(30);
 
-  fill(60);
-  stroke(60);
+  fill(foregroundHighlight);
+  stroke(foregroundHighlight);
 
   text(`${date}`, -28 * scale, 16 * scale);
   text(`${time}`, -16 * scale, -10 * scale);
 
   text("E", 80 * scale, -12 * scale);
 
-  fill(50);
-  stroke(50);
+  fill(foregroundColor);
+  stroke(foregroundColor);
   text("W", -86 * scale, -12 * scale);
 
   noFill();
   strokeWeight(90 * scale);
 
-  stroke(30);
+  stroke(darkHighlight);
   ellipse(0, 0, 300 * scale, 300 * scale);
   strokeWeight(1 * scale);
   stroke(100);
@@ -192,11 +198,11 @@ function draw() {
     push();
     rotate(-90);
     rotate((index * 30 - asc.degree) % 360);
-    stroke(index <= 1 ? 100 : 50);
+    stroke(index <= 1 ? foregroundHighlight : foregroundColor);
     strokeWeight(2 * scale);
     line(0, 110 * scale, 0, 190 * scale);
     noStroke();
-    fill(index === 0 ? 100 : 50);
+    fill(index === 0 ? foregroundHighlight : foregroundColor);
     push();
     translate(-35 * scale, 170 * scale);
     rotate(196);
@@ -218,9 +224,9 @@ function draw() {
     push();
     rotate(-90);
     strokeWeight(2 * scale);
-    stroke(50);
+    stroke(foregroundColor);
     line(0, 0, 0, -95 * scale);
-    stroke(100);
+    stroke(foregroundHighlight);
     line(0, 0, 0, 95 * scale);
     noStroke();
     rotate(rotation);
