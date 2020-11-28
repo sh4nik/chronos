@@ -31,7 +31,7 @@ const extractMoonPhaseIndex = (phaseString) => {
   return parseInt(split[0]) + (split[1][0] === "K" ? 0 : 15);
 };
 
-const drawMoon = (posX, posY, size, color, moonPhase) => {
+const drawMoon = (posX, posY, size, color, moonPhase, moonShadow) => {
   const moonPhaseIndex = extractMoonPhaseIndex(moonPhase);
   noStroke();
   angleMode(RADIANS);
@@ -48,21 +48,21 @@ const drawMoon = (posX, posY, size, color, moonPhase) => {
     color3 = color;
     color4 = color;
     color1 = color;
-    color2 = config.moonShadow;
+    color2 = moonShadow;
   } else if (-Math.PI < a && a < -Math.PI / 2) {
     color1 = color;
-    color3 = config.moonShadow;
-    color4 = config.moonShadow;
-    color2 = config.moonShadow;
+    color3 = moonShadow;
+    color4 = moonShadow;
+    color2 = moonShadow;
   } else if ((-3 * Math.PI) / 2 < a && a < -Math.PI) {
-    color4 = config.moonShadow;
+    color4 = moonShadow;
     color2 = color;
-    color1 = config.moonShadow;
-    color3 = config.moonShadow;
+    color1 = moonShadow;
+    color3 = moonShadow;
   } else if (-2 * Math.PI < a && a < (-3 * Math.PI) / 2) {
     color4 = color;
     color3 = color;
-    color1 = config.moonShadow;
+    color1 = moonShadow;
     color2 = color;
   }
 
@@ -90,10 +90,13 @@ const drawMoon = (posX, posY, size, color, moonPhase) => {
 
 function setup() {
   config = {
-    scale: 2,
-    backgorund: {
-      color: color("#222"),
+    playback: {
+      direction: "add",
+      unit: "d",
+      step: 1,
     },
+    scale: 2,
+    backgroundColor: color("#222"),
     moonShadow: color("#5e4841"),
     planets: {
       Su: { char: "☉", size: 0.8, color: color("#ffc107") },
@@ -124,8 +127,15 @@ function setup() {
 }
 
 function draw() {
-  const scale = config.scale;
-  datetime = datetime.add(1, "d");
+  const {
+    playback: { direction, unit, step },
+    scale,
+    backgroundColor,
+    zodiac: zodiacConfig,
+    planets: planetsConfig,
+    moonShadow,
+  } = config;
+  datetime = datetime[direction](step, unit);
   const date = datetime.format("YYYY/MM/DD");
   const time = datetime.format("HH:mm");
   const { positions, moonPhase } = get_positions(
@@ -136,7 +146,7 @@ function draw() {
     constructLocString(myLon, "lon")
   );
 
-  background(config.backgorund.color);
+  background(backgroundColor);
 
   textSize(12 * scale);
 
@@ -168,14 +178,14 @@ function draw() {
   const asc = positions.find((p) => p.name === "As");
   const planets = positions.filter((p) => p.name !== "As");
 
-  const ascIndex = config.zodiac.findIndex((z) => z.name === asc.zodiac);
+  const ascIndex = zodiacConfig.findIndex((z) => z.name === asc.zodiac);
   if (ascIndex === -1) {
     console.error(`Invalid ascendant ${asc.zodiac}`);
   }
 
   const zodiac = [
-    ...config.zodiac.slice(ascIndex, config.zodiac.length),
-    ...config.zodiac.slice(0, ascIndex),
+    ...zodiacConfig.slice(ascIndex, zodiacConfig.length),
+    ...zodiacConfig.slice(0, ascIndex),
   ];
 
   zodiac.forEach((constellation, index) => {
@@ -196,7 +206,7 @@ function draw() {
   });
 
   planets.forEach((planet) => {
-    const planetConfig = config.planets[planet.name];
+    const planetConfig = planetsConfig[planet.name];
     if (!planetConfig) return;
 
     const size = planetConfig.size * 20 * scale;
@@ -218,10 +228,22 @@ function draw() {
     strokeWeight(2 * scale);
 
     fill(18);
-    ellipse((posX * scale) + (2 * scale), (posY * scale) + (2 * scale), size * 1.1 * scale, size * 1.1 * scale);
+    ellipse(
+      posX * scale + 2 * scale,
+      posY * scale + 2 * scale,
+      size * 1.1 * scale,
+      size * 1.1 * scale
+    );
 
     if (planet.name === "Mo") {
-      drawMoon(posX * scale, posY * scale, size * scale, color, moonPhase);
+      drawMoon(
+        posX * scale,
+        posY * scale,
+        size * scale,
+        color,
+        moonPhase,
+        moonShadow
+      );
     } else {
       fill(color);
       ellipse(posX * scale, posY * scale, size * scale, size * scale);
