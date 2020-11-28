@@ -90,6 +90,7 @@ const drawMoon = (posX, posY, size, color, moonPhase) => {
 
 function setup() {
   config = {
+    scale: 2,
     backgorund: {
       color: color("#222"),
     },
@@ -123,7 +124,8 @@ function setup() {
 }
 
 function draw() {
-  datetime = datetime.add(1, "m");
+  const scale = config.scale;
+  datetime = datetime.add(1, "d");
   const date = datetime.format("YYYY/MM/DD");
   const time = datetime.format("HH:mm");
   const { positions, moonPhase } = get_positions(
@@ -136,36 +138,31 @@ function draw() {
 
   background(config.backgorund.color);
 
-  textSize(12);
+  textSize(12 * scale);
 
   translate(width / 2, height / 2);
 
   noStroke();
-  // fill(20);
-  // rect(-55 - 6, 0 + 6, 110, 25);
   fill(30);
-  // rect(-25, -25, 50, 25);
-  // rect(-45, 0, 90, 25);
 
   fill(60);
   stroke(60);
 
-  text(`${date}`, -28, 16);
-  text(`${time}`, -16, -10);
+  text(`${date}`, -28 * scale, 16 * scale);
+  text(`${time}`, -16 * scale, -10 * scale);
 
-  text("E", 80, -12);
+  text("E", 80 * scale, -12 * scale);
 
   fill(50);
   stroke(50);
-  text("W", -86, -12);
+  text("W", -86 * scale, -12 * scale);
 
   noFill();
-  strokeWeight(90);
-  // stroke(25);
-  // ellipse(-6, 6, 300, 300);
+  strokeWeight(90 * scale);
+
   stroke(30);
-  ellipse(0, 0, 300, 300);
-  strokeWeight(1);
+  ellipse(0, 0, 300 * scale, 300 * scale);
+  strokeWeight(1 * scale);
   stroke(100);
 
   const asc = positions.find((p) => p.name === "As");
@@ -186,12 +183,12 @@ function draw() {
     rotate(-90);
     rotate((index * 30 - asc.degree) % 360);
     stroke(index <= 1 ? 100 : 50);
-    strokeWeight(2);
-    line(0, 110, 0, 190);
+    strokeWeight(2 * scale);
+    line(0, 110 * scale, 0, 190 * scale);
     noStroke();
     fill(index === 0 ? 100 : 50);
     push();
-    translate(-35, 170);
+    translate(-35 * scale, 170 * scale);
     rotate(196);
     text(constellation.shortName, 0, 0);
     pop();
@@ -202,32 +199,32 @@ function draw() {
     const planetConfig = config.planets[planet.name];
     if (!planetConfig) return;
 
-    const size = planetConfig.size * 50;
+    const size = planetConfig.size * 20 * scale;
     const color = planetConfig.color;
     const posX = 0;
-    const posY = 150;
+    const posY = 140;
     const rotation = (planet.ra - asc.ra) % 360;
 
     push();
     rotate(-90);
-    strokeWeight(2);
+    strokeWeight(2 * scale);
     stroke(50);
-    line(0, 0, 0, -95);
+    line(0, 0, 0, -95 * scale);
     stroke(100);
-    line(0, 0, 0, 95);
+    line(0, 0, 0, 95 * scale);
     noStroke();
     rotate(rotation);
     stroke(18);
-    strokeWeight(2);
+    strokeWeight(2 * scale);
 
-    fill(10);
-    ellipse(posX + 2, posY + 2, size * 1.1, size * 1.1);
+    fill(18);
+    ellipse((posX * scale) + (2 * scale), (posY * scale) + (2 * scale), size * 1.1 * scale, size * 1.1 * scale);
 
     if (planet.name === "Mo") {
-      drawMoon(posX, posY, size, color, moonPhase);
+      drawMoon(posX * scale, posY * scale, size * scale, color, moonPhase);
     } else {
       fill(color);
-      ellipse(posX, posY, size, size);
+      ellipse(posX * scale, posY * scale, size * scale, size * scale);
     }
 
     pop();
