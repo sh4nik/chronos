@@ -1,5 +1,5 @@
 let config;
-let datetime = moment('2020/03/21 06:15');
+let datetime = moment("2020/03/21 06:15");
 let myTzOffset = moment().utcOffset();
 
 // Default viewing location: Colombo, Sri Lanka
@@ -11,6 +11,86 @@ navigator.geolocation.getCurrentPosition((pos) => {
   myLat = pos.coords.latitude;
   myLon = pos.coords.longitude;
 });
+
+const PLAYBACK_TYPES = { STATIC: "STATIC", LIVE: "LIVE", CONF: "CONF" };
+
+function setup() {
+  config = {
+    playbackType: PLAYBACK_TYPES.CONF,
+    playbackConf: {
+      direction: "add",
+      unit: "d",
+      step: 1,
+    },
+    scale: 2,
+    backgroundColor: color("#202633"),
+    darkHighlight: color("#1e222d"),
+    foregroundColor: color("#2f3c3d"),
+    foregroundHighlight: color("#116066"),
+    foregroundHighlight2: color("#3c5658"),
+    moonShadow: color("#5e4841"),
+    planets: {
+      Su: {
+        char: "☉",
+        size: 0.4,
+        color: color("#ffc107"),
+        eqDistMultiplier: 25,
+      },
+      Mo: {
+        char: "☽",
+        size: 0.35,
+        color: color("#bdbdbd"),
+        eqDistMultiplier: 25,
+      },
+      Me: {
+        char: "☿",
+        size: 0.2,
+        color: color("#00bcd4"),
+        eqDistMultiplier: 25,
+      },
+      Ve: {
+        char: "♀",
+        size: 0.25,
+        color: color("#f46dab"),
+        eqDistMultiplier: 25,
+      },
+      Ma: {
+        char: "♂",
+        size: 0.28,
+        color: color("#e91e63"),
+        eqDistMultiplier: 15,
+      },
+      Ju: {
+        char: "♃",
+        size: 0.32,
+        color: color("#673ab7"),
+        eqDistMultiplier: 5,
+      },
+      Sa: {
+        char: "♄",
+        size: 0.3,
+        color: color("#05cd6a"),
+        eqDistMultiplier: 3,
+      },
+    },
+    zodiac: [
+      { name: "Aries", shortName: "Ari" },
+      { name: "Taurus", shortName: "Tau" },
+      { name: "Gemini", shortName: "Gem" },
+      { name: "Cancer", shortName: "Can" },
+      { name: "Leo", shortName: "Leo" },
+      { name: "Virgo", shortName: "Vir" },
+      { name: "Libra", shortName: "Lib" },
+      { name: "Scorpio", shortName: "Sco" },
+      { name: "Sagittarius", shortName: "Sag" },
+      { name: "Capricorn", shortName: "Cap" },
+      { name: "Aquarius", shortName: "Aqu" },
+      { name: "Pisces", shortName: "Pis" },
+    ],
+  };
+  createCanvas(windowWidth, windowHeight);
+  angleMode(DEGREES);
+}
 
 const constructLocString = (degrees, type) => {
   if (degrees >= 0) {
@@ -88,50 +168,16 @@ const drawMoon = (posX, posY, size, color, moonPhase, moonShadow) => {
   angleMode(DEGREES);
 };
 
-const PLAYBACK_TYPES = { STATIC: 'STATIC', LIVE: 'LIVE', CONF: 'CONF' };
-
-function setup() {
-  config = {
-    playbackType: PLAYBACK_TYPES.CONF,
-    playbackConf: {
-      direction: "add",
-      unit: "d",
-      step: 1,
-    },
-    scale: 2,
-    backgroundColor: color("#202633"),
-    darkHighlight: color("#1e222d"),
-    foregroundColor: color("#2f3c3d"),
-    foregroundHighlight: color("#116066"),
-    foregroundHighlight2: color("#3c5658"),
-    moonShadow: color("#5e4841"),
-    planets: {
-      Su: { char: "☉", size: 0.4, color: color("#ffc107"), eqDistMultiplier: 25 },
-      Mo: { char: "☽", size: 0.35, color: color("#bdbdbd"), eqDistMultiplier: 25 },
-      Me: { char: "☿", size: 0.2, color: color("#00bcd4"), eqDistMultiplier: 25 },
-      Ve: { char: "♀", size: 0.25, color: color("#f46dab"), eqDistMultiplier: 25 },
-      Ma: { char: "♂", size: 0.28, color: color("#e91e63"), eqDistMultiplier: 15 },
-      Ju: { char: "♃", size: 0.32, color: color("#673ab7"), eqDistMultiplier: 5 },
-      Sa: { char: "♄", size: 0.3, color: color("#05cd6a"), eqDistMultiplier: 3 },
-    },
-    zodiac: [
-      { name: "Aries", shortName: "Ari" },
-      { name: "Taurus", shortName: "Tau" },
-      { name: "Gemini", shortName: "Gem" },
-      { name: "Cancer", shortName: "Can" },
-      { name: "Leo", shortName: "Leo" },
-      { name: "Virgo", shortName: "Vir" },
-      { name: "Libra", shortName: "Lib" },
-      { name: "Scorpio", shortName: "Sco" },
-      { name: "Sagittarius", shortName: "Sag" },
-      { name: "Capricorn", shortName: "Cap" },
-      { name: "Aquarius", shortName: "Aqu" },
-      { name: "Pisces", shortName: "Pis" },
-    ],
-  };
-  createCanvas(windowWidth, windowHeight);
-  angleMode(DEGREES);
-}
+const getResolvedPlanetData = (planet, planetConfig, scale, asc) => ({
+  size: planetConfig.size * 20 * scale * scale,
+  color: planetConfig.color,
+  posX: 0,
+  posY: 140 * scale,
+  rotation: (planet.ra - asc.ra) % 360,
+  eqDist: planet.geoCentricCoords
+    ? planet.geoCentricCoords.y * planetConfig.eqDistMultiplier * scale
+    : 0,
+});
 
 function draw() {
   const {
@@ -148,7 +194,8 @@ function draw() {
     foregroundHighlight2,
   } = config;
 
-  switch(playbackType) {
+  // Set playback related configs
+  switch (playbackType) {
     case PLAYBACK_TYPES.LIVE:
       datetime = moment();
       break;
@@ -157,6 +204,7 @@ function draw() {
       break;
   }
 
+  // Get planetary data from external library
   const date = datetime.format("YYYY/MM/DD");
   const time = datetime.format("HH:mm");
   const { positions, moonPhase } = get_positions(
@@ -166,34 +214,6 @@ function draw() {
     constructLocString(myLat, "lat"),
     constructLocString(myLon, "lon")
   );
-
-  background(backgroundColor);
-
-  textSize(12 * scale);
-
-  translate(width / 2, height / 2);
-
-  fill(foregroundHighlight2);
-  stroke(foregroundHighlight2);
-
-  text(`${date}`, -28 * scale, 16 * scale);
-  text(`${time}`, -16 * scale, -10 * scale);
-
-  fill(foregroundHighlight);
-  stroke(foregroundHighlight);
-  text("E", 80 * scale, -12 * scale);
-
-  fill(foregroundColor);
-  stroke(foregroundColor);
-  text("W", -86 * scale, -12 * scale);
-
-  noFill();
-  strokeWeight(100 * scale);
-
-  stroke(darkHighlight);
-  ellipse(0, 0, 300 * scale, 300 * scale);
-
-  strokeWeight(1 * scale);
 
   const asc = positions.find((p) => p.name === "As");
   const planets = positions.filter((p) => p.name !== "As");
@@ -208,52 +228,87 @@ function draw() {
     ...zodiacConfig.slice(0, ascIndex),
   ];
 
+  // Initiate main drawing
+  background(backgroundColor);
+  textSize(12 * scale);
+  translate(width / 2, height / 2);
+
+  // Display time and date
+  fill(foregroundHighlight2);
+  stroke(foregroundHighlight2);
+  strokeWeight(1 * scale);
+  text(`${date}`, -28 * scale, 16 * scale);
+  text(`${time}`, -16 * scale, -10 * scale);
+
+  // Draw eastern marker
+  fill(foregroundHighlight);
+  stroke(foregroundHighlight);
+  strokeWeight(1 * scale);
+  text("E", 80 * scale, -12 * scale);
+  strokeWeight(2 * scale);
+  line(0, 0, 95 * scale, 0);
+
+  // Draw western marker
+  fill(foregroundColor);
+  stroke(foregroundColor);
+  strokeWeight(1 * scale);
+  text("W", -86 * scale, -12 * scale);
+  strokeWeight(2 * scale);
+  line(0, 0, -95 * scale, 0);
+
+  // Display zodiac wheel
+  noFill();
+  strokeWeight(100 * scale);
+  stroke(darkHighlight);
+  ellipse(0, 0, 300 * scale, 300 * scale);
+
+  // Draw each constellation with name and border
   zodiac.forEach((constellation, index) => {
     push();
     rotate(-90);
     rotate((index * 30 - asc.degree) % 360);
+
+    // Draw constellation borders
     stroke(index <= 1 ? foregroundHighlight : foregroundColor);
     strokeWeight(2 * scale);
     line(0, 110 * scale, 0, 194 * scale);
+
+    // Draw constellation name
+    push();
     noStroke();
     fill(index === 0 ? foregroundHighlight : foregroundColor);
-    push();
     translate(-35 * scale, 180 * scale);
     rotate(196);
     text(constellation.shortName, 0, 0);
     pop();
+
     pop();
   });
 
+  // Draw planet shadows
+  push();
+  rotate(-90);
+  fill(18);
+  stroke(18);
+  strokeWeight(2 * scale);
   planets.forEach((planet) => {
     const planetConfig = planetsConfig[planet.name];
     if (!planetConfig) return;
 
-    const size = planetConfig.size * 20 * scale;
-    const color = planetConfig.color;
-    const eqDistMultiplier = planetConfig.eqDistMultiplier;
-    const posX = 0;
-    const posY = 140;
-    const rotation = (planet.ra - asc.ra) % 360;
-    const eqDist = planet.geoCentricCoords ? planet.geoCentricCoords.y * eqDistMultiplier * scale : 0;
-
-    push();
-    rotate(-90);
-    rotate(rotation);
-    stroke(18);
-    strokeWeight(2 * scale);
-
-    fill(18);
-    ellipse(
-      (posX * scale) + (2 * scale),
-      (posY * scale) + eqDist + (2 * scale),
-      (size * 1.1 * scale),
-      (size * 1.1 * scale),
+    const { size, posX, posY, rotation, eqDist } = getResolvedPlanetData(
+      planet,
+      planetConfig,
+      scale,
+      asc
     );
 
-    pop();
+    rotate(rotation);
+    ellipse(posX + 2, posY + eqDist + 2 * scale, size * 1.1, size * 1.1);
+    rotate(-rotation);
   });
+  pop();
 
+  // Draw sunrise markers
   stroke(foregroundHighlight);
   strokeWeight(2 * scale);
   line(130 * scale, -5 * scale, 130 * scale, 5 * scale);
@@ -262,44 +317,30 @@ function draw() {
   line(106 * scale, -4 * scale, 106 * scale, 4 * scale);
   line(175 * scale, -4 * scale, 175 * scale, 4 * scale);
 
+  // Draw planets
+  push();
+  rotate(-90);
+  stroke(18);
+  strokeWeight(2 * scale);
   planets.forEach((planet) => {
     const planetConfig = planetsConfig[planet.name];
     if (!planetConfig) return;
 
-    const size = planetConfig.size * 20 * scale;
-    const color = planetConfig.color;
-    const eqDistMultiplier = planetConfig.eqDistMultiplier;
-    const posX = 0;
-    const posY = 140;
-    const rotation = (planet.ra - asc.ra) % 360;
-    const eqDist = planet.geoCentricCoords ? planet.geoCentricCoords.y * eqDistMultiplier * scale : 0;
+    const { size, color, posX, posY, rotation, eqDist } = getResolvedPlanetData(
+      planet,
+      planetConfig,
+      scale,
+      asc
+    );
 
-    push();
-    rotate(-90);
-    strokeWeight(2 * scale);
-    stroke(foregroundColor);
-    line(0, 0, 0, -95 * scale);
-    stroke(foregroundHighlight);
-    line(0, 0, 0, 95 * scale);
-    noStroke();
     rotate(rotation);
-    stroke(18);
-    strokeWeight(2 * scale);
-
     if (planet.name === "Mo") {
-      drawMoon(
-        posX * scale,
-        posY * scale,
-        size * scale,
-        color,
-        moonPhase,
-        moonShadow
-      );
+      drawMoon(posX, posY, size, color, moonPhase, moonShadow);
     } else {
       fill(color);
-      ellipse(posX * scale, (posY * scale) + eqDist, size * scale, size * scale);
+      ellipse(posX, posY + eqDist, size, size);
     }
-
-    pop();
+    rotate(-rotation);
   });
+  pop();
 }
