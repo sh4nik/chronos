@@ -1,5 +1,5 @@
 let config;
-let datetime = moment();
+let datetime = moment('2020/03/21 06:15');
 let myTzOffset = moment().utcOffset();
 
 // Default viewing location: Colombo, Sri Lanka
@@ -256,11 +256,11 @@ function draw() {
 
   stroke(foregroundHighlight);
   strokeWeight(2 * scale);
-  line(259, -10, 259, 10);
-  line(300, -10, 300, 10);
+  line(130 * scale, -5 * scale, 130 * scale, 5 * scale);
+  line(150 * scale, -5 * scale, 150 * scale, 5 * scale);
   strokeWeight(1 * scale);
-  line(212, -8, 212, 8);
-  line(349, -8, 349, 8);
+  line(106 * scale, -4 * scale, 106 * scale, 4 * scale);
+  line(175 * scale, -4 * scale, 175 * scale, 4 * scale);
 
   planets.forEach((planet) => {
     const planetConfig = planetsConfig[planet.name];
