@@ -49,8 +49,8 @@
           <option value="subtract-1-y">Years -</option>
           <option value="add-1-y">Years +</option>
         </select>
-        <button type="button" onclick="applyInput()">Apply</button>
-        <button type="button" onclick="switchToLiveMode()">Live</button>
+        <button type="button" ontouchstart="applyInput(event)" onclick="applyInput(event)">Apply</button>
+        <button type="button" ontouchstart="switchToLiveMode(event)" onclick="switchToLiveMode(event)">Live</button>
       </div>
     </main>
     <div id="time" />

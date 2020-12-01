@@ -2,12 +2,16 @@ let config;
 let datetime = moment();
 let myTzOffset = moment().utcOffset();
 
-const switchToLiveMode = () => {
+const switchToLiveMode = (e) => {
+  e.stopPropagation();
+  e.preventDefault();
   config.playbackType = PLAYBACK_TYPES.LIVE;
   datetime = moment();
 };
 
-const applyInput = () => {
+const applyInput = (e) => {
+  e.stopPropagation();
+  e.preventDefault();
   const selectedDate = document.getElementById("selectedDate").value;
   const selectedTime = document.getElementById("selectedTime").value;
   const selectedPlayback = document.getElementById("selectedPlayback").value;
