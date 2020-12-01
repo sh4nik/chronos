@@ -1,6 +1,34 @@
 let config;
-let datetime = moment("2020/03/21 06:15");
+let datetime = moment();
 let myTzOffset = moment().utcOffset();
+
+const switchToLiveMode = () => {
+  config.playbackType = PLAYBACK_TYPES.LIVE;
+  datetime = moment();
+};
+
+const applyInput = () => {
+  const selectedDate = document.getElementById("selectedDate").value;
+  const selectedTime = document.getElementById("selectedTime").value;
+  const selectedPlayback = document.getElementById("selectedPlayback").value;
+  datetime = moment(
+    `${selectedDate || moment().format("YYYY-MM-DD")} ${
+      selectedTime || moment().format("HH:mm")
+    }`
+  );
+
+  if (selectedPlayback === "paused") {
+    config.playbackType = PLAYBACK_TYPES.STATIC;
+  } else {
+    const settings = selectedPlayback.split("-");
+    config.playbackType = PLAYBACK_TYPES.CONF;
+    config.playbackConf = {
+      direction: settings[0],
+      unit: settings[1],
+      step: settings[2],
+    };
+  }
+};
 
 // Default viewing location: Colombo, Sri Lanka
 let myLat = 6.9;
@@ -16,7 +44,7 @@ const PLAYBACK_TYPES = { STATIC: "STATIC", LIVE: "LIVE", CONF: "CONF" };
 
 function setup() {
   config = {
-    playbackType: PLAYBACK_TYPES.CONF,
+    playbackType: PLAYBACK_TYPES.LIVE,
     playbackConf: {
       direction: "add",
       unit: "d",
