@@ -44,7 +44,7 @@ const PLAYBACK_TYPES = { STATIC: "STATIC", LIVE: "LIVE", CONF: "CONF" };
 
 function setup() {
   config = {
-    playbackType: PLAYBACK_TYPES.LIVE,
+    playbackType: PLAYBACK_TYPES.CONF,
     playbackConf: {
       direction: "add",
       unit: "d",
