@@ -66,7 +66,7 @@ function setup() {
       Su: {
         char: "☉",
         size: 0.4,
-        color: color("#ffc107"),
+        color: color("#f57b42"),
         eqDistMultiplier: 25,
       },
       Mo: {
@@ -78,13 +78,13 @@ function setup() {
       Me: {
         char: "☿",
         size: 0.2,
-        color: color("#00bcd4"),
+        color: color("#05cd6a"),
         eqDistMultiplier: 25,
       },
       Ve: {
         char: "♀",
         size: 0.25,
-        color: color("#f46dab"),
+        color: color("#ffb5fb"),
         eqDistMultiplier: 25,
       },
       Ma: {
@@ -96,14 +96,26 @@ function setup() {
       Ju: {
         char: "♃",
         size: 0.32,
-        color: color("#673ab7"),
+        color: color("#ffc107"),
         eqDistMultiplier: 5,
       },
       Sa: {
         char: "♄",
         size: 0.3,
-        color: color("#05cd6a"),
+        color: color("#673ab7"),
         eqDistMultiplier: 3,
+      },
+      Ra: {
+        char: "",
+        size: 0.2,
+        color: color("#232661"),
+        eqDistMultiplier: 25,
+      },
+      Ke: {
+        char: "♄",
+        size: 0.2,
+        color: color("#4f5178"),
+        eqDistMultiplier: 25,
       },
     },
     zodiac: [
