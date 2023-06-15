@@ -3,6 +3,23 @@ let tick = 0;
 let datetime = moment();
 let myTzOffset = moment().utcOffset();
 
+let zodiacImgs = {};
+
+function preload(){
+  zodiacImgs.Aries = loadImage("https://upload.wikimedia.org/wikipedia/commons/archive/5/5e/20211126203256%21Aries.svg");
+	zodiacImgs.Taurus = loadImage("https://upload.wikimedia.org/wikipedia/commons/archive/3/3a/20211126204205%21Taurus.svg");
+  zodiacImgs.Gemini = loadImage("https://upload.wikimedia.org/wikipedia/commons/archive/2/29/20190822104030%21Cancer.svg");
+  zodiacImgs.Cancer = loadImage("https://upload.wikimedia.org/wikipedia/commons/archive/1/15/20211126203506%21Gemini.svg");
+  zodiacImgs.Leo = loadImage("https://upload.wikimedia.org/wikipedia/commons/archive/9/99/20200701120040%21Leo.svg");
+  zodiacImgs.Virgo = loadImage("https://upload.wikimedia.org/wikipedia/commons/archive/0/0c/20211126204252%21Virgo.svg");
+  zodiacImgs.Libra = loadImage("https://upload.wikimedia.org/wikipedia/commons/archive/f/f7/20211126203722%21Libra.svg");
+  zodiacImgs.Scorpio = loadImage("https://upload.wikimedia.org/wikipedia/commons/archive/e/ea/20211126204108%21Scorpio.svg");
+  zodiacImgs.Sagittarius = loadImage("https://upload.wikimedia.org/wikipedia/commons/archive/8/80/20200701193348%21Sagittarius.svg");
+  zodiacImgs.Capricorn = loadImage("https://upload.wikimedia.org/wikipedia/commons/archive/7/76/20081005203731%21Capricorn.svg");
+  zodiacImgs.Aquarius = loadImage("https://upload.wikimedia.org/wikipedia/commons/archive/2/24/20211126203204%21Aquarius.svg");
+  zodiacImgs.Pisces = loadImage("https://upload.wikimedia.org/wikipedia/commons/archive/9/95/20171121034331%21Pisces.svg");
+}
+
 const switchToLiveMode = (e) => {
   e.stopPropagation();
   e.preventDefault();
@@ -521,7 +538,11 @@ function draw() {
     fill(index === 0 ? foregroundHighlight : foregroundColor);
     translate(-35 * scale, 180 * scale);
     rotate(196);
-    text(constellation.shortName, 0, 0);
+    // text(constellation.shortName, 0, 0);
+
+    tint(0, index === 0 ? 90 : 50);
+    image(zodiacImgs[constellation.name], -10, 25, 70, 70);
+
     pop();
 
     pop();
