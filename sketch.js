@@ -163,7 +163,7 @@ const constructLocString = (degrees, type) => {
     degrees = degrees * -1;
   }
   const wholeDegrees = Math.floor(degrees);
-  return `${wholeDegrees}${indicator}${degrees % 1}`;
+  return `${wholeDegrees}${indicator}${ Math.floor(degrees % 1 * 60)}`;
 };
 
 const extractMoonPhaseIndex = (phaseString) => {
@@ -493,9 +493,12 @@ function draw() {
   // Display time and date
   fill(foregroundHighlight2);
   stroke(foregroundHighlight2);
-  strokeWeight(1 * scale);
-  text(`${date}`, -28 * scale, 16 * scale);
-  text(`${time}`, -16 * scale, -10 * scale);
+  strokeWeight(0);
+  text(`${date} - ${time}`, -48 * scale, 16 * scale);
+  textSize(8 * scale);
+  text(`Lat ${myLat.toFixed(1)}`, -32 * scale, -10 * scale);
+  text(`Lon ${myLon.toFixed(1)}`, 5 * scale, -10 * scale);
+  textSize(12 * scale);
 
   // Draw eastern marker
   fill(foregroundHighlight);
