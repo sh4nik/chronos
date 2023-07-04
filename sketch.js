@@ -13,7 +13,9 @@ const modeParam = urlParams.get('mode');
 console.log(dateParam, timeParam);
 
 let datetime = dateParam && timeParam ? moment(`${dateParam} ${timeParam}`) : moment();
-let myTzOffset = timeZoneOffsetParam ? moment.duration(timeZoneOffsetParam, "hours").asMinutes() : moment().utcOffset();
+const myTzOffset = timeZoneOffsetParam ? moment.duration(timeZoneOffsetParam, "hours").asMinutes() : moment().utcOffset();
+const myTzOffsetInHours = moment.duration(moment.duration(myTzOffset, "minutes")).asHours();
+
 
 let zodiacImgs = {};
 
@@ -517,10 +519,11 @@ function draw() {
   // Get planetary data from external library
   const date = datetime.format("YYYY/MM/DD");
   const time = datetime.format("HH:mm");
+  
   const { positions, moonPhase } = get_positions(
     date,
     time,
-    moment.duration(moment.duration(myTzOffset, "minutes")).asHours(),
+    myTzOffsetInHours,
     constructLocString(myLat, "lat"),
     constructLocString(myLon, "lon")
   );
@@ -549,8 +552,9 @@ function draw() {
   strokeWeight(0);
   text(`${date} - ${time}`, -48 * scale, 16 * scale);
   textSize(8 * scale);
-  text(`Lat ${myLat.toFixed(1)}`, -32 * scale, -10 * scale);
-  text(`Lon ${myLon.toFixed(1)}`, 5 * scale, -10 * scale);
+  text(`Lat ${myLat.toFixed(1)}`, -52 * scale, -10 * scale);
+  text(`Lon ${myLon.toFixed(1)}`, -15 * scale, -10 * scale);
+  text(`Tz ${myTzOffsetInHours > 0 ? '+' : ''}${myTzOffsetInHours.toFixed(1)}`, 30 * scale, -10 * scale);
   textSize(12 * scale);
 
   // Draw eastern marker
@@ -628,14 +632,11 @@ function draw() {
     tint(0, index === 0 ? 90 : 50);
     image(zodiacImgs[constellation.name], -10, 25, 70, 70);
 
-    // Sign rulers
-    // rotate(-10);
+    // Sign rulers / House number
     translate(-25, 85 * scale);
     stroke(darkHighlight);
     strokeWeight(10);
     fill(planetsConfig[signRuler[constellation.name]].colorDark);
-    // line(-15, 0, 75, 0);
-    // ellipse(0, 0, 15, 15);
     textSize(7 * scale);
     text(index + 1, 50, 0);
 
