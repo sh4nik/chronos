@@ -10,9 +10,20 @@ const timeParam = urlParams.get('time');
 const timeZoneOffsetParam = urlParams.get('tz');
 const modeParam = urlParams.get('mode');
 
-console.log(dateParam, timeParam);
+let timeParamWrapped;
+let dateParamWrapped;
 
-let datetime = dateParam && timeParam ? moment(`${dateParam} ${timeParam}`) : moment();
+if (dateParam && timeParam ) {
+  timeParamWrapped = moment(timeParam, 'HH:mm');
+  dateParamWrapped = moment(dateParam);
+  dateParamWrapped.set({
+    hour:   timeParamWrapped.get('hour'),
+    minute: timeParamWrapped.get('minute'),
+    second: timeParamWrapped.get('second')
+  });
+}
+
+let datetime = dateParamWrapped ? dateParamWrapped : moment();
 const myTzOffset = timeZoneOffsetParam ? moment.duration(timeZoneOffsetParam, "hours").asMinutes() : moment().utcOffset();
 const myTzOffsetInHours = moment.duration(moment.duration(myTzOffset, "minutes")).asHours();
 
