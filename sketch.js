@@ -1,7 +1,19 @@
 let config;
 let tick = 0;
-let datetime = moment();
-let myTzOffset = moment().utcOffset();
+
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+const latParam = urlParams.get('lat');
+const lonParam = urlParams.get('lon');
+const dateParam = urlParams.get('date');
+const timeParam = urlParams.get('time');
+const timeZoneOffsetParam = urlParams.get('tz');
+const modeParam = urlParams.get('mode');
+
+console.log(dateParam, timeParam);
+
+let datetime = dateParam && timeParam ? moment(`${dateParam} ${timeParam}`) : moment();
+let myTzOffset = timeZoneOffsetParam ? moment.duration(timeZoneOffsetParam, "hours").asMinutes() : moment().utcOffset();
 
 let zodiacImgs = {};
 
@@ -53,20 +65,23 @@ const applyInput = (e) => {
 };
 
 // Default viewing location: Colombo, Sri Lanka
-let myLat = 6.9;
-let myLon = 79.9;
+let myLat = latParam ? parseFloat(latParam) : 6.9;
+let myLon = lonParam ? parseFloat(lonParam) : 79.9;
 
 // Attempt to set actual location data if allowed by user
-navigator.geolocation.getCurrentPosition((pos) => {
-  myLat = pos.coords.latitude;
-  myLon = pos.coords.longitude;
-});
+if (!latParam || !lonParam) {
+  navigator.geolocation.getCurrentPosition((pos) => {
+    myLat = pos.coords.latitude;
+    myLon = pos.coords.longitude;
+  });
+}
 
 const PLAYBACK_TYPES = { STATIC: "STATIC", LIVE: "LIVE", CONF: "CONF" };
 
 function setup() {
+
   config = {
-    playbackType: PLAYBACK_TYPES.CONF,
+    playbackType: modeParam || PLAYBACK_TYPES.CONF,
     playbackConf: {
       direction: "add",
       unit: "d",
@@ -84,55 +99,73 @@ function setup() {
         char: "☉",
         size: 0.4,
         color: color("#f57b42"),
+        colorDark: color("#8a4a2c"),
         eqDistMultiplier: 25,
+        nakshatraOwnershipIndex: 2,
       },
       Mo: {
         char: "☽",
         size: 0.35,
         color: color("#bdbdbd"),
-        eqDistMultiplier: 25,
+        colorDark: color("#a8a8a8"),
+        eqDistMultiplier: 90,
+        nakshatraOwnershipIndex: 3,
       },
       Me: {
         char: "☿",
         size: 0.2,
         color: color("#05cd6a"),
+        colorDark: color("#047d40"),
         eqDistMultiplier: 25,
+        nakshatraOwnershipIndex: 8,
       },
       Ve: {
         char: "♀",
         size: 0.25,
         color: color("#ffb5fb"),
+        colorDark: color("#9e6f9c"),
         eqDistMultiplier: 25,
+        nakshatraOwnershipIndex: 1,
       },
       Ma: {
         char: "♂",
         size: 0.28,
         color: color("#e91e63"),
+        colorDark: color("#8c123b"),
         eqDistMultiplier: 15,
+        nakshatraOwnershipIndex: 4,
       },
       Ju: {
         char: "♃",
         size: 0.32,
         color: color("#ffc107"),
+        colorDark: color("#8f6c04"),
         eqDistMultiplier: 5,
+        nakshatraOwnershipIndex: 6,
       },
       Sa: {
         char: "♄",
         size: 0.3,
         color: color("#673ab7"),
+        colorDark: color("#522d91"),
         eqDistMultiplier: 3,
+        nakshatraOwnershipIndex: 7,
       },
       Ra: {
         char: "",
         size: 0.2,
-        color: color("#232661"),
-        eqDistMultiplier: 25,
+        color: color("#344c70"),
+        colorDark: color("#2a3e5c"),
+        eqDistMultiplier: 90,
+        nakshatraOwnershipIndex: 5,
       },
       Ke: {
         char: "♄",
         size: 0.2,
-        color: color("#4f5178"),
-        eqDistMultiplier: 25,
+        color: color("#4f7378"),
+        colorDark: color("#3c585c"),
+        eqDistMultiplier: 90,
+        nakshatraOwnershipIndex: 0,
       },
     },
     zodiac: [
@@ -154,6 +187,61 @@ function setup() {
   createCanvas(windowWidth, windowHeight - 50);
   angleMode(DEGREES);
 }
+
+let signRuler = {
+  Aries: 'Ma',
+  Taurus: 'Ve',
+  Gemini: 'Me',
+  Cancer: 'Mo',
+  Leo: 'Su',
+  Virgo: 'Me',
+  Libra: 'Ve',
+  Scorpio: 'Ma',
+  Sagittarius: 'Ju',
+  Capricorn: 'Sa',
+  Aquarius: 'Sa',
+  Pisces: 'Ju',
+};
+
+let planetExaltationBySign = {
+  Aries: { planet: 'Su', degree: 10},
+  Taurus: { planet: 'Mo', degree: 3},
+  Cancer: { planet: 'Ju', degree: 28},
+  Virgo: { planet: 'Me', degree: 15},
+  Libra: { planet: 'Sa', degree: 5},
+  Capricorn: { planet: 'Ma', degree: 27},
+  Pisces: { planet: 'Ve', degree: 20},
+};
+
+let planetDebilitationBySign = {
+  Libra: { planet: 'Su', degree: 10},
+  Scorpio: { planet: 'Mo', degree: 3},
+  Capricorn: { planet: 'Ju', degree: 28},
+  Pisces: { planet: 'Me', degree: 15},
+  Aries: { planet: 'Sa', degree: 5},
+  Cancer: { planet: 'Ma', degree: 27},
+  Virgo: { planet: 'Ve', degree: 20},
+};
+
+let planetExaltation = {
+  Su: 'Aries', // 10 deg
+  Mo: 'Taurus', // 3 deg
+  Ju: 'Cancer', // 28 deg
+  Me: 'Virgo', // 15 deg
+  Sa: 'Libra', // 5 deg
+  Ma: 'Capricorn', // 27 deg
+  Ve: 'Pisces', // 20 deg
+};
+
+let planetDebilitation = {
+  Su: 'Libra', // 10 deg
+  Mo: 'Scorpio', // 3 deg
+  Ju: 'Capricorn', // 28 deg
+  Me: 'Pisces', // 15 deg
+  Sa: 'Aries', // 5 deg
+  Ma: 'Cancer', // 27 deg
+  Ve: 'Virgo', // 20 deg
+};
 
 const constructLocString = (degrees, type) => {
   if (degrees >= 0) {
@@ -241,7 +329,7 @@ const getResolvedPlanetData = (planet, planetConfig, scale, asc) => ({
   rotation: (-planet.ra + asc.ra + 30) % 360,
   eqDist: planet.geoCentricCoords
     ? planet.geoCentricCoords.y * planetConfig.eqDistMultiplier * scale
-    : 0,
+    : planetConfig.eqDistMultiplier,
 });
 
 function evaluateHouse(house, sign, localPlanets, allPlanets) {
@@ -294,41 +382,6 @@ function evaluateSign(house, sign, localPlanets, allPlanets) {
     Sa: ['Structure', 'Definition', 'Limits', 'Restriction', 'Responsibility', 'Organization', 'Authority', 'Maturity'],
     Ra: ['Direction of progress', 'What is difficul to do but growth producing', 'What one needs to develop'],
     Ke: ['Path of least resistence', 'Not growth producing', 'Traps from old habits'],
-  };
-
-  let signRuler = {
-    Aries: 'Ma',
-    Taurus: 'Ve',
-    Gemini: 'Me',
-    Cancer: 'Mo',
-    Leo: 'Su',
-    Virgo: 'Me',
-    Libra: 'Ve',
-    Scorpio: 'Ma',
-    Sagittarius: 'Ju',
-    Capricorn: 'Sa',
-    Aquarius: 'Sa',
-    Pisces: 'Ju',
-  };
-
-  let planetExaltation = {
-    Su: 'Aries', // 10 deg
-    Mo: 'Taurus', // 3 deg
-    Ju: 'Cancer', // 28 deg
-    Me: 'Virgo', // 15 deg
-    Sa: 'Libra', // 5 deg
-    Ma: 'Capricorn', // 27 deg
-    Ve: 'Pisces', // 20 deg
-  };
-
-  let planetDebilitation = {
-    Su: 'Libra', // 10 deg
-    Mo: 'Scorpio', // 3 deg
-    Ju: 'Capricorn', // 28 deg
-    Me: 'Pisces', // 15 deg
-    Sa: 'Aries', // 5 deg
-    Ma: 'Cancer', // 27 deg
-    Ve: 'Virgo', // 20 deg
   };
 
   let rulingPlanet = allPlanets.find(p => p.name === signRuler[sign]);
@@ -524,6 +577,35 @@ function draw() {
 
   const rotation = +60;
 
+  const ariesI = zodiac.findIndex((z) => z.name === "Aries");
+  const zodiacStartPoint = (ariesI * -30) + (asc.degree);
+  nakshatraOwners = Object.values(planetsConfig);
+  nakshatraOwners.sort((a, b) => a.nakshatraOwnershipIndex - b.nakshatraOwnershipIndex);
+
+  Array.from(Array(27).keys()).forEach(n => {
+    push();
+    rotate(rotation);
+    rotate(zodiacStartPoint + (n * -(360/27)) + 30);
+
+    // Draw Nakshatra borders
+    const nIndex = Math.floor(n) % 9;
+    stroke(foregroundColor);
+
+    strokeWeight(1.5 * scale);
+    line(0, 195 * scale, 0, 200 * scale);
+
+    stroke(nakshatraOwners[nIndex].colorDark);
+    strokeWeight(1 * scale);
+    Array.from(Array(3).keys()).forEach(p => {
+      push();
+      rotate((p + 1) * -(360/27/4));
+      line(0, 198 * scale, 0, 200 * scale);
+      pop();
+    });
+
+    pop();
+  });
+
   // Draw each constellation with name and border
   zodiac.forEach((constellation, index) => {
     push();
@@ -532,8 +614,8 @@ function draw() {
 
     // Draw constellation borders
     stroke(index === zodiac.length - 1 || index === 0 ? foregroundHighlight : foregroundColor);
-    strokeWeight(2 * scale);
-    line(0, 110 * scale, 0, 194 * scale);
+    strokeWeight(1 * scale);
+    line(0, 110 * scale, 0, 192 * scale);
 
     // Draw constellation name
     push();
@@ -546,7 +628,46 @@ function draw() {
     tint(0, index === 0 ? 90 : 50);
     image(zodiacImgs[constellation.name], -10, 25, 70, 70);
 
+    // Sign rulers
+    // rotate(-10);
+    translate(-25, 85 * scale);
+    stroke(darkHighlight);
+    strokeWeight(10);
+    fill(planetsConfig[signRuler[constellation.name]].colorDark);
+    // line(-15, 0, 75, 0);
+    // ellipse(0, 0, 15, 15);
+    textSize(7 * scale);
+    text(index + 1, 50, 0);
+
     pop();
+
+    // Exaltation signs
+    textSize(10 * scale);
+    const ex = planetExaltationBySign[constellation.name];
+    if (ex) {
+      push();
+      rotate(-ex.degree + 45);
+      translate(0, 110 * scale);
+      strokeWeight(0.5 * scale);
+      stroke(planetsConfig[ex.planet].colorDark);
+      // ellipse(50, 0, 10, 10);
+      text("*", 50, 0);
+      pop();
+    }
+
+    // Debilitation signs
+    textSize(5 * scale);
+    const de = planetDebilitationBySign[constellation.name];
+    if (de) {
+      push();
+      rotate(-de.degree + 45);
+      translate(0, 110 * scale);
+      strokeWeight(0.5 * scale);
+      stroke(planetsConfig[de.planet].colorDark);
+      // ellipse(50, 0, 10, 10);
+      text("o", 50, 0);
+      pop();
+    }
 
     pop();
   });
@@ -575,13 +696,13 @@ function draw() {
   pop();
 
   // Draw sunrise markers
-  stroke(foregroundHighlight);
-  strokeWeight(2 * scale);
-  line(-130 * scale, -5 * scale, -130 * scale, 5 * scale);
-  line(-150 * scale, -5 * scale, -150 * scale, 5 * scale);
-  strokeWeight(1 * scale);
-  line(-106 * scale, -4 * scale, -106 * scale, 4 * scale);
-  line(-175 * scale, -4 * scale, -175 * scale, 4 * scale);
+  // stroke(foregroundHighlight);
+  // strokeWeight(2 * scale);
+  // line(-130 * scale, -5 * scale, -130 * scale, 5 * scale);
+  // line(-150 * scale, -5 * scale, -150 * scale, 5 * scale);
+  // strokeWeight(1 * scale);
+  // line(-106 * scale, -4 * scale, -106 * scale, 4 * scale);
+  // line(-175 * scale, -4 * scale, -175 * scale, 4 * scale);
 
   // Experimental text
   generateExperimentalWordCloud(planets, zodiac, scale, planetsConfig);
@@ -604,7 +725,7 @@ function draw() {
 
     rotate(rotation);
     if (planet.name === "Mo") {
-      drawMoon(posX, posY, size, color, moonPhase, moonShadow);
+      drawMoon(posX, posY + eqDist, size, color, moonPhase, moonShadow);
     } else {
       fill(color);
       ellipse(posX, posY + eqDist, size, size);
